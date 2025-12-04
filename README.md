@@ -211,17 +211,3 @@ pip install numpy pandas matplotlib scikit-learn joblib pillow
 - Data imbalance (more fresh tomatoes) may affect performance
 
 ---
-
-## 📞 Contact and Contribution
-
-This project is dedicated to educational and research purposes. For questions or suggestions, please contact the project developer.
-
----
-
-## 📄 License
-
-All files and code in this project are available for academic and research use.
-
----
-
-**Last Updated:** December 2025
