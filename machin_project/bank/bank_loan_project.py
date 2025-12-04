@@ -33,6 +33,7 @@ from sklearn.metrics import (
 )
 
 # ---------------- CONFIG ----------------# 
+# Change file path to match your file location
 DATA_PATH = r"D:\machin_project\bank\bankloan.csv"
 TARGET_COL = "Personal.Loan"
 ID_COLS = ["ID"]
