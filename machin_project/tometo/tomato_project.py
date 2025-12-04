@@ -31,7 +31,7 @@ from sklearn.model_selection import train_test_split
 import joblib
 
 # ---------------- CONFIG ----------------
-
+#Change file path to match your file location
 DATA_DIR = r"D:\machin_project\tometo\tometo"
 OUTPUT_DIR = r"D:\machin_project\tometo\tometo_outputs"
 IMAGE_SIZE = (64, 64)
