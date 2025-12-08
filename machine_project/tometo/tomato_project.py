@@ -138,6 +138,50 @@ def load_and_extract(entries):
             continue
     return np.array(X), np.array(y)
 
+
+# ---------- CONFUSION MATRIX  ----------
+def plot_confusion_matrix(cm, labels, title, filename):
+    fig, ax = plt.subplots(figsize=(6, 5))
+    cax = ax.imshow(cm, cmap="Blues")
+
+    ax.set_title(title, fontsize=15)
+    ax.set_xticks(range(len(labels)))
+    ax.set_yticks(range(len(labels)))
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+
+    # Write numbers
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, str(cm[i, j]), ha="center", va="center",
+                    fontsize=14, color="black", fontweight="bold")
+
+    ax.set_xlabel("Predicted", fontsize=12)
+    ax.set_ylabel("True", fontsize=12)
+    fig.colorbar(cax)
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUTPUT_DIR, filename), dpi=150)
+    plt.close()
+    
+
+# ---------- ROC CURVE  ----------
+def plot_roc_curve(y_test, scores, title, filename):
+    fpr, tpr, _ = roc_curve(y_test, scores)
+    rocA = auc(fpr, tpr)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax.plot(fpr, tpr, label=f"AUC = {rocA:.3f}")
+    ax.plot([0,1],[0,1],"--", label="Random")
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.set_title(title)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUTPUT_DIR, filename), dpi=150)
+    plt.close()
+
+
+
 # ---------- PLOT HELPERS ----------
 def save_plot(fig, name):
     fig.savefig(os.path.join(OUTPUT_DIR, name), dpi=150)
@@ -274,18 +318,22 @@ def main():
 
     # Confusion Matrix
     cm = confusion_matrix(y_test, y_pred)
-    fig, ax = plt.subplots()
-    ax.imshow(cm, cmap="Blues")
-    ax.set_title("Logistic Confusion Matrix")
-    save_plot(fig, "confusion_logistic.png")
+    plot_confusion_matrix(
+    cm,
+    labels=["Fresh (0)", "Rotten (1)"],
+    title="Logistic Regression - Confusion Matrix",
+    filename="confusion_logistic.png"
+)
+
 
     # ROC Curve
-    fig, ax = plt.subplots()
-    fpr, tpr, _ = roc_curve(y_test, y_proba)
-    ax.plot(fpr, tpr)
-    ax.plot([0,1],[0,1],"--")
-    ax.set_title("ROC - Logistic Regression")
-    save_plot(fig, "roc_logistic.png")
+    plot_roc_curve(
+    y_test,
+    y_proba,
+    title="ROC Curve - Logistic Regression",
+    filename="roc_logistic.png"
+)
+
 
     # Loss Curve for Logistic Regression 
     plot_loss_curve(test_losses_lr, "Loss Curve - Logistic Regression", "loss_curve_logistic.png")
@@ -312,10 +360,13 @@ def main():
 
     # KMeans Confusion
     cm_k = confusion_matrix(y_test, km_pred)
-    fig, ax = plt.subplots()
-    ax.imshow(cm_k, cmap="Purples")
-    ax.set_title("KMeans Confusion Matrix")
-    save_plot(fig, "confusion_kmeans.png")
+    plot_confusion_matrix(
+    cm_k,
+    labels=["Fresh (0)", "Rotten (1)"],
+    title="KMeans - Confusion Matrix",
+    filename="confusion_kmeans.png"
+)
+
 
     # KMeans ROC
     centers = km.cluster_centers_
@@ -324,11 +375,13 @@ def main():
     km_scores = -(d1)
 
     fpr, tpr, _ = roc_curve(y_test, km_scores)
-    fig, ax = plt.subplots()
-    ax.plot(fpr, tpr)
-    ax.plot([0,1],[0,1],"--")
-    ax.set_title("ROC - KMeans")
-    save_plot(fig, "roc_kmeans.png")
+    plot_roc_curve(
+    y_test,
+    km_scores,
+    title="ROC Curve - KMeans",
+    filename="roc_kmeans.png"
+)
+
     
     # Loss curve for KMeans (using different k values) - TEST DATA ONLY
     ks_loss = list(range(1, 7))
@@ -359,3 +412,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
