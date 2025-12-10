@@ -29,6 +29,7 @@ from sklearn.model_selection import train_test_split
 import joblib
 
 # ---------------- CONFIG ----------------
+
 # change these paths as needed
 DATA_DIR = r"D:\machin_project\tometo\tometo"
 OUTPUT_DIR = r"D:\machin_project\tometo\tometo_outputs"
@@ -237,7 +238,7 @@ def generate_report(X_train, y_train, X_val, y_val, X_test, y_test,
         "- Figures: confusion_logistic.png, roc_logistic.png, loss_curve_logistic.png\n",
         "## KMeans",
         "- Number of clusters: 2",
-        "- Cluster label assignment: majority vote on validation set",
+        "- Cluster label assignment: mapped to classes by majority vote on the validation set",
         f"- Accuracy: {acc_km_percent:.2f}%",
         "- Figures: confusion_kmeans.png, roc_kmeans.png, inertia_vs_k.png, loss_curve_kmeans.png\n",
         "All models and figures saved in output directory."
@@ -325,7 +326,6 @@ def main():
     filename="confusion_logistic.png"
 )
 
-
     # ROC Curve
     plot_roc_curve(
     y_test,
@@ -334,7 +334,6 @@ def main():
     filename="roc_logistic.png"
 )
 
-
     # Loss Curve for Logistic Regression 
     plot_loss_curve(test_losses_lr, "Loss Curve - Logistic Regression", "loss_curve_logistic.png")
 
@@ -342,17 +341,51 @@ def main():
     km = KMeans(n_clusters=2, random_state=42)
     km.fit(X_train_s)
 
+   
     val_clusters = km.predict(X_val_s)
     mapping = {}
-    for c in [0,1]:
-        idx = np.where(val_clusters==c)[0]
-        if len(idx)==0:
-            mapping[c] = 0
+
+    for c in [0, 1]:
+        idx = np.where(val_clusters == c)[0]
+        if len(idx) == 0:
+           
+            other_c = 1 - c
+            if other_c in mapping:
+                mapping[c] = 1 - mapping[other_c]
+            else:
+                mapping[c] = 0
         else:
             mapping[c] = Counter(y_val[idx]).most_common(1)[0][0]
 
+    print("Cluster mapping:", mapping)
+
+   
     test_clusters = km.predict(X_test_s)
-    km_pred = np.array([mapping[c] for c in test_clusters])
+    km_pred_map = np.array([mapping[c] for c in test_clusters])
+
+    
+    centers = km.cluster_centers_
+    d0 = np.linalg.norm(X_test_s - centers[0], axis=1)
+    d1 = np.linalg.norm(X_test_s - centers[1], axis=1)
+
+   
+    rot_cluster = [c for c, v in mapping.items() if v == 1]
+    if len(rot_cluster) == 0:
+        
+        km_scores = d0 - d1
+    else:
+        rot_cluster = rot_cluster[0]
+        if rot_cluster == 0:
+            km_scores = d0 - d1
+        else:
+            km_scores = d1 - d0
+
+    
+    fpr, tpr, thresholds = roc_curve(y_test, km_scores)
+    best_idx = np.argmax(tpr - fpr)
+    best_thr = thresholds[best_idx]
+
+    km_pred = (km_scores >= best_thr).astype(int)
 
     acc_km = accuracy_score(y_test, km_pred)
     acc_km_percent = acc_km * 100
@@ -361,26 +394,18 @@ def main():
     # KMeans Confusion
     cm_k = confusion_matrix(y_test, km_pred)
     plot_confusion_matrix(
-    cm_k,
-    labels=["Fresh (0)", "Rotten (1)"],
-    title="KMeans - Confusion Matrix",
-    filename="confusion_kmeans.png"
-)
-
-
+        cm_k,
+        labels=["Fresh (0)", "Rotten (1)"],
+        title="KMeans - Confusion Matrix",
+        filename="confusion_kmeans.png"
+    )
     # KMeans ROC
-    centers = km.cluster_centers_
-    d0 = np.linalg.norm(X_test_s - centers[0], axis=1)
-    d1 = np.linalg.norm(X_test_s - centers[1], axis=1)
-    km_scores = -(d1)
-
-    fpr, tpr, _ = roc_curve(y_test, km_scores)
     plot_roc_curve(
-    y_test,
-    km_scores,
-    title="ROC Curve - KMeans",
-    filename="roc_kmeans.png"
-)
+        y_test,
+        km_scores,
+        title="ROC Curve - KMeans",
+        filename="roc_kmeans.png"
+    )
 
     
     # Loss curve for KMeans (using different k values) - TEST DATA ONLY

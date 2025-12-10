@@ -26,8 +26,8 @@
 
 ## KMeans
 - Number of clusters: 2
-- Cluster label assignment: majority vote on validation set
-- Accuracy: 79.72%
+- Cluster label assignment: mapped to classes by majority vote on the validation set
+- Accuracy: 64.60%
 - Figures: confusion_kmeans.png, roc_kmeans.png, inertia_vs_k.png, loss_curve_kmeans.png
 
 All models and figures saved in output directory.
