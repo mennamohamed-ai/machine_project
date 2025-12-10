@@ -327,21 +327,18 @@ def main():
 )
 
     # ROC Curve
-    plot_roc_curve(
-    y_test,
-    y_proba,
+    plot_roc_curve(y_test,y_proba,
     title="ROC Curve - Logistic Regression",
     filename="roc_logistic.png"
 )
 
     # Loss Curve for Logistic Regression 
-    plot_loss_curve(test_losses_lr, "Loss Curve - Logistic Regression", "loss_curve_logistic.png")
+    plot_loss_curve(test_losses_lr,
+     "Loss Curve - Logistic Regression", "loss_curve_logistic.png")
 
     # -------- KMEANS --------
     km = KMeans(n_clusters=2, random_state=42)
     km.fit(X_train_s)
-
-   
     val_clusters = km.predict(X_val_s)
     mapping = {}
 
@@ -359,11 +356,9 @@ def main():
 
     print("Cluster mapping:", mapping)
 
-   
     test_clusters = km.predict(X_test_s)
     km_pred_map = np.array([mapping[c] for c in test_clusters])
-
-    
+   
     centers = km.cluster_centers_
     d0 = np.linalg.norm(X_test_s - centers[0], axis=1)
     d1 = np.linalg.norm(X_test_s - centers[1], axis=1)
@@ -407,8 +402,7 @@ def main():
         filename="roc_kmeans.png"
     )
 
-    
-    # Loss curve for KMeans (using different k values) - TEST DATA ONLY
+    # Loss curve for KMeans (using different k values) 
     ks_loss = list(range(1, 7))
     test_losses_km = []
     for k in ks_loss:
