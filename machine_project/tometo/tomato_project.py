@@ -118,7 +118,7 @@ def load_yolo_dataset(split_dir):
 
     return entries
 
-# ---------- HOG FEATURES (NO AUGMENTATION) ----------
+# ---------- HOG FEATURES  ----------
 def load_and_extract(entries):
     X, y = [], []
     for img_path, cls in entries:
@@ -132,7 +132,7 @@ def load_and_extract(entries):
             continue
     return np.array(X), np.array(y)
 
-# ---------- PLOT HELPERS ----------
+# ---------- PLOT  ----------
 def save_plot(fig, name):
     fig.savefig(os.path.join(OUTPUT_DIR, name), dpi=150)
     plt.close(fig)
@@ -288,7 +288,7 @@ def main():
         y=y_train
     )
 
-    # ---------- LOGISTIC REGRESSION (WITH CLASS WEIGHTS) ----------
+    # ---------- LOGISTIC REGRESSION  ----------
     clf_sgd = SGDClassifier(
     loss="log_loss",
     learning_rate="constant",
@@ -365,7 +365,6 @@ def main():
     km = KMeans(n_clusters=2, random_state=42)
     km.fit(X_train_s)
 
-    # Use raw cluster IDs as predictions (0/1) and compare directly
     km_pred = km.predict(X_test_s)
 
     acc_km = accuracy_score(y_test, km_pred)
