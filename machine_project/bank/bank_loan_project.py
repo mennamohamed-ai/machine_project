@@ -1,16 +1,3 @@
-"""
-
-- Preprocessing
-- 70/15/15 split
-- Linear Regression + KNN Regression
-- Confusion Matrix
-- ROC Curve
-- AUC
-- Accuracy
-- Markdown Report
-
-"""
-
 import os
 import numpy as np
 import pandas as pd
@@ -178,7 +165,7 @@ lr_sgd = SGDRegressor(loss='squared_error', learning_rate='constant',
                       eta0=0.01, max_iter=1000, random_state=RANDOM_STATE, 
                       warm_start=True, tol=1e-6)
 
-# Track loss during training (TEST DATA ONLY)
+# Track loss during training 
 test_losses_lr = []
 n_epochs = 100
 
@@ -227,7 +214,7 @@ cm_knn = confusion_matrix(y_test, y_knn_class)
 plot_confusion(cm_knn, ["0","1"], "KNN Confusion Matrix", "cm_knn.png")
 auc_knn = plot_roc_curve(y_test, y_pred_knn, "KNN ROC", "roc_knn.png")
 
-# Loss curve for KNN (using different k values) - TEST DATA ONLY
+# Loss curve for KNN (using different k values) - 
 k_vals_loss = list(range(1, 21))
 test_losses_knn = []
 for k in k_vals_loss:
